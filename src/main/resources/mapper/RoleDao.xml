@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxa.xly2021.dao.RoleDao">
+
+    <resultMap type="com.gxa.xly2021.entity.Role" id="RoleMap">
+        <result property="roleId" column="role_id" jdbcType="INTEGER"/>
+        <result property="isSuper" column="is_super" jdbcType="INTEGER"/>
+        <result property="roleCode" column="role_code" jdbcType="VARCHAR"/>
+        <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+        <result property="deptId" column="dept_id" jdbcType="INTEGER"/>
+        <result property="roleRemark" column="role_remark" jdbcType="VARCHAR"/>
+        <result property="operatorId" column="operator_id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap type="com.gxa.xly2021.entity.Role" id="RolePermissionMap">
+        <result property="roleId" column="role_id" jdbcType="INTEGER"/>
+        <result property="isSuper" column="is_super" jdbcType="INTEGER"/>
+        <result property="roleCode" column="role_code" jdbcType="VARCHAR"/>
+        <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+        <result property="deptId" column="dept_id" jdbcType="INTEGER"/>
+        <result property="roleRemark" column="role_remark" jdbcType="VARCHAR"/>
+        <result property="operatorId" column="operator_id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="INTEGER"/>
+
+<!--        处理多对多关系-->
+        <collection property="permissions"
+                    column="role_id"
+                    ofType="com.gxa.xly2021.entity.Permission"
+                    select="com.gxa.xly2021.dao.PermissionDao.findPermissionByRoleId"
+                    />
+
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="RoleMap">
+        select
+          role_id,is_super,role_code, role_name, dept_id, role_remark, operator_id, create_time, update_time, is_deleted,
+        from gxa_xly_2021.role
+        where role_id = #{roleId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="RoleMap">
+        select
+          role_id, is_super,role_code, role_name, dept_id, role_remark, operator_id, create_time, update_time, is_deleted
+        from gxa_xly_2021.role
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="RoleMap">
+        select
+        role_id,is_super, role_code, role_name, dept_id, role_remark, operator_id, create_time, update_time, is_deleted
+        from gxa_xly_2021.role
+        <where>
+            <if test="roleId != null">
+                and role_id = #{roleId}
+            </if>
+            <if test="roleCode != null and roleCode != ''">
+                and role_code = #{roleCode}
+            </if>
+            <if test="roleName != null and roleName != ''">
+                and role_name = #{roleName}
+            </if>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+            <if test="roleRemark != null and roleRemark != ''">
+                and role_remark = #{roleRemark}
+            </if>
+            <if test="operatorId != null">
+                and operator_id = #{operatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="isDeleted != null">
+                and is_deleted = #{isDeleted}
+            </if>
+        </where>
+    </select>
+    <select id="findRolesByEmplId" resultMap="RolePermissionMap">
+       select * from empl_role er
+       left join role r on er.role_id =r.role_id
+       where er.empl_id=#{emplId}
+    </select>
+    <select id="findAll" resultMap="RoleMap">
+        select * from role
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="roleId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.role(role_code,is_super, role_name, dept_id, role_remark, operator_id, create_time, update_time, is_deleted)
+        values (#{roleCode}, #{roleName}, #{deptId}, #{roleRemark}, #{operatorId}, #{createTime}, #{updateTime}, #{isDeleted})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="roleId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.role(role_code,is_super, role_name, dept_id, role_remark, operator_id, create_time, update_time,
+        is_deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.roleCode}, #{entity.roleName}, #{entity.deptId}, #{entity.roleRemark}, #{entity.operatorId},
+            #{entity.createTime}, #{entity.updateTime}, #{entity.isDeleted})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="roleId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.role(role_code, is_super,role_name, dept_id, role_remark, operator_id, create_time, update_time,
+        is_deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.roleCode}, #{entity.roleName}, #{entity.deptId}, #{entity.roleRemark}, #{entity.operatorId},
+            #{entity.createTime}, #{entity.updateTime}, #{entity.isDeleted})
+        </foreach>
+        on duplicate key update
+        role_code = values(role_code) , role_name = values(role_name) , dept_id = values(dept_id) , role_remark =
+        values(role_remark) , operator_id = values(operator_id) , create_time = values(create_time) , update_time =
+        values(update_time) , is_deleted = values(is_deleted)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update gxa_xly_2021.role
+        <set>
+            <if test="roleCode != null and roleCode != ''">
+                role_code = #{roleCode},
+            </if>
+            <if test="roleName != null and roleName != ''">
+                role_name = #{roleName},
+            </if>
+            <if test="deptId != null">
+                dept_id = #{deptId},
+            </if>
+            <if test="roleRemark != null and roleRemark != ''">
+                role_remark = #{roleRemark},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+        where role_id = #{roleId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from gxa_xly_2021.role where role_id = #{roleId}
+    </delete>
+
+</mapper>
+

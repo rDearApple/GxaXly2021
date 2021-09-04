@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxa.xly2021.dao.DeptDao">
+
+    <resultMap type="com.gxa.xly2021.entity.Dept" id="DeptMap">
+        <result property="deptId" column="dept_id" jdbcType="VARCHAR"/>
+        <result property="deptCode" column="dept_code" jdbcType="VARCHAR"/>
+        <result property="deptSimpleName" column="dept_simple_name" jdbcType="VARCHAR"/>
+        <result property="deptFullName" column="dept_full_name" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="VARCHAR"/>
+        <result property="deptDesc" column="dept_desc" jdbcType="VARCHAR"/>
+        <result property="deptRemark" column="dept_remark" jdbcType="VARCHAR"/>
+        <result property="operatorId" column="operator_id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DeptMap">
+        select * from gxa_xly_2021.dept
+        where dept_id = #{deptId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="DeptMap">
+        select
+          dept_id, dept_code, dept_simple_name, dept_full_name, parent_id, dept_desc, dept_remark, operator_id, create_time, update_time, is_deleted
+        from gxa_xly_2021.dept
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="DeptMap">
+        select
+        dept_id, dept_code, dept_simple_name, dept_full_name, parent_id, dept_desc, dept_remark, operator_id,
+        create_time, update_time, is_deleted
+        from gxa_xly_2021.dept
+        <where>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+            <if test="deptCode != null and deptCode != ''">
+                and dept_code = #{deptCode}
+            </if>
+            <if test="deptSimpleName != null and deptSimpleName != ''">
+                and dept_simple_name = #{deptSimpleName}
+            </if>
+            <if test="deptFullName != null and deptFullName != ''">
+                and dept_full_name = #{deptFullName}
+            </if>
+            <if test="parentId != null">
+                and parent_id = #{parentId}
+            </if>
+            <if test="deptDesc != null and deptDesc != ''">
+                and dept_desc = #{deptDesc}
+            </if>
+            <if test="deptRemark != null and deptRemark != ''">
+                and dept_remark = #{deptRemark}
+            </if>
+            <if test="operatorId != null">
+                and operator_id = #{operatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="isDeleted != null">
+                and is_deleted = #{isDeleted}
+            </if>
+        </where>
+    </select>
+    <select id="findAll" resultMap="DeptMap">
+        select * from dept
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="deptId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.dept(dept_code, dept_simple_name, dept_full_name, parent_id, dept_desc, dept_remark, operator_id, create_time, update_time, is_deleted)
+        values (#{deptCode}, #{deptSimpleName}, #{deptFullName}, #{parentId}, #{deptDesc}, #{deptRemark}, #{operatorId}, #{createTime}, #{updateTime}, #{isDeleted})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="deptId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.dept(dept_code, dept_simple_name, dept_full_name, parent_id, dept_desc, dept_remark,
+        operator_id, create_time, update_time, is_deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.deptCode}, #{entity.deptSimpleName}, #{entity.deptFullName}, #{entity.parentId},
+            #{entity.deptDesc}, #{entity.deptRemark}, #{entity.operatorId}, #{entity.createTime}, #{entity.updateTime},
+            #{entity.isDeleted})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="deptId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.dept(dept_code, dept_simple_name, dept_full_name, parent_id, dept_desc, dept_remark,
+        operator_id, create_time, update_time, is_deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.deptCode}, #{entity.deptSimpleName}, #{entity.deptFullName}, #{entity.parentId},
+            #{entity.deptDesc}, #{entity.deptRemark}, #{entity.operatorId}, #{entity.createTime}, #{entity.updateTime},
+            #{entity.isDeleted})
+        </foreach>
+        on duplicate key update
+        dept_code = values(dept_code) , dept_simple_name = values(dept_simple_name) , dept_full_name =
+        values(dept_full_name) , parent_id = values(parent_id) , dept_desc = values(dept_desc) , dept_remark =
+        values(dept_remark) , operator_id = values(operator_id) , create_time = values(create_time) , update_time =
+        values(update_time) , is_deleted = values(is_deleted)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update gxa_xly_2021.dept
+        <set>
+            <if test="deptCode != null and deptCode != ''">
+                dept_code = #{deptCode},
+            </if>
+            <if test="deptSimpleName != null and deptSimpleName != ''">
+                dept_simple_name = #{deptSimpleName},
+            </if>
+            <if test="deptFullName != null and deptFullName != ''">
+                dept_full_name = #{deptFullName},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="deptDesc != null and deptDesc != ''">
+                dept_desc = #{deptDesc},
+            </if>
+            <if test="deptRemark != null and deptRemark != ''">
+                dept_remark = #{deptRemark},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+        where dept_id = #{deptId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from gxa_xly_2021.dept where dept_id = #{deptId}
+    </delete>
+
+</mapper>
+

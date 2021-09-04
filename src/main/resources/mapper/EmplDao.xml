@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxa.xly2021.dao.EmplDao">
+
+    <resultMap type="com.gxa.xly2021.entity.Empl" id="EmplMap">
+        <result property="emplId" column="empl_id" jdbcType="VARCHAR"/>
+        <result property="emplCode" column="empl_code" jdbcType="VARCHAR"/>
+        <result property="emplName" column="empl_name" jdbcType="VARCHAR"/>
+        <result property="emplAccount" column="empl_account" jdbcType="VARCHAR"/>
+        <result property="emplPwd" column="empl_pwd" jdbcType="VARCHAR"/>
+        <result property="emplPhone" column="empl_phone" jdbcType="INTEGER"/>
+        <result property="emplGender" column="empl_gender" jdbcType="VARCHAR"/>
+        <result property="emplStatus" column="empl_status" jdbcType="VARCHAR"/>
+        <result property="deptId" column="dept_id" jdbcType="VARCHAR"/>
+        <result property="operatorId" column="operator_id" jdbcType="VARCHAR"/>
+        <result property="emplRemark" column="empl_remark" jdbcType="VARCHAR"/>
+        <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="VARCHAR"/>
+        </resultMap>
+
+    <!--查询单个 ?LoginMap是如何关联查询出所有东西的-->
+    <select id="queryById" resultMap="LoginMap">
+        select
+          *
+        from gxa_xly_2021.empl
+        where empl_id = #{emplId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="EmplMap">
+        select
+          empl_id, empl_code, empl_name, empl_account, empl_pwd, empl_phone, empl_gender, empl_status, dept_id, operator_id, empl_remark, last_login_time, create_time, update_time, is_deleted
+        from gxa_xly_2021.empl
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="LoginMap">
+        select
+        empl_id, empl_code, empl_name, empl_account, empl_pwd, empl_phone, empl_gender, empl_status, dept_id,
+        operator_id, empl_remark, last_login_time, create_time, update_time, is_deleted
+        from gxa_xly_2021.empl
+        <where>
+            <if test="emplId != null">
+                and empl_id = #{emplId}
+            </if>
+            <if test="emplCode != null and emplCode != ''">
+                and empl_code = #{emplCode}
+            </if>
+            <if test="emplName != null and emplName != ''">
+                and empl_name = #{emplName}
+            </if>
+            <if test="emplAccount != null and emplAccount != ''">
+                and empl_account = #{emplAccount}
+            </if>
+            <if test="emplPwd != null and emplPwd != ''">
+                and empl_pwd = #{emplPwd}
+            </if>
+            <if test="emplPhone != null">
+                and empl_phone = #{emplPhone}
+            </if>
+            <if test="emplGender != null">
+                and empl_gender = #{emplGender}
+            </if>
+            <if test="emplStatus != null">
+                and empl_status = #{emplStatus}
+            </if>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+            <if test="operatorId != null">
+                and operator_id = #{operatorId}
+            </if>
+            <if test="emplRemark != null and emplRemark != ''">
+                and empl_remark = #{emplRemark}
+            </if>
+            <if test="lastLoginTime != null">
+                and last_login_time = #{lastLoginTime}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="isDeleted != null">
+                and is_deleted = #{isDeleted}
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+
+    <resultMap type="com.gxa.xly2021.entity.Empl" id="LoginMap">
+        <result property="emplId" column="empl_id" jdbcType="VARCHAR"/>
+        <result property="emplCode" column="empl_code" jdbcType="VARCHAR"/>
+        <result property="emplName" column="empl_name" jdbcType="VARCHAR"/>
+        <result property="emplAccount" column="empl_account" jdbcType="VARCHAR"/>
+        <result property="emplPwd" column="empl_pwd" jdbcType="VARCHAR"/>
+        <result property="emplPhone" column="empl_phone" jdbcType="INTEGER"/>
+        <result property="emplGender" column="empl_gender" jdbcType="VARCHAR"/>
+        <result property="emplStatus" column="empl_status" jdbcType="VARCHAR"/>
+        <result property="deptId" column="dept_id" jdbcType="VARCHAR"/>
+        <result property="operatorId" column="operator_id" jdbcType="VARCHAR"/>
+        <result property="emplRemark" column="empl_remark" jdbcType="VARCHAR"/>
+        <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="VARCHAR"/>
+
+<!--        处理一对一的关系映射-->
+        <association property="dept" column="dept_id" javaType="com.gxa.xly2021.entity.Dept"
+                     select="com.gxa.xly2021.dao.DeptDao.queryById"/>
+
+        <collection property="roles" column="empl_id" ofType="com.gxa.xly2021.entity.Role"
+                    select="com.gxa.xly2021.dao.RoleDao.findRolesByEmplId"/>
+
+    </resultMap>
+
+
+
+
+
+
+    <select id="findByAccount" resultMap="LoginMap">
+        select * from empl where empl_account=#{emplAccount} and is_deleted=0
+    </select>
+    <select id="findAll" resultMap="LoginMap">
+         select * from empl where is_deleted=0 order by empl_id desc
+    </select>
+    <select id="findLastEmpl" resultMap="EmplMap">
+        select * from empl order by empl_id desc limit 1;
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="emplId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.empl(empl_code, empl_name, empl_account, empl_pwd, empl_phone, empl_gender, empl_status, dept_id, empl_remark,  create_time)
+        values (#{emplCode}, #{emplName}, #{emplAccount}, #{emplPwd}, #{emplPhone}, #{emplGender}, #{emplStatus}, #{deptId}, #{emplRemark}, #{createTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="emplId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.empl(empl_code, empl_name, empl_account, empl_pwd, empl_phone, empl_gender,
+        empl_status, dept_id, operator_id, empl_remark, last_login_time, create_time, update_time, is_deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.emplCode}, #{entity.emplName}, #{entity.emplAccount}, #{entity.emplPwd}, #{entity.emplPhone},
+            #{entity.emplGender}, #{entity.emplStatus}, #{entity.deptId}, #{entity.operatorId}, #{entity.emplRemark},
+            #{entity.lastLoginTime}, #{entity.createTime}, #{entity.updateTime}, #{entity.isDeleted})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="emplId" useGeneratedKeys="true">
+        insert into gxa_xly_2021.empl(empl_code, empl_name, empl_account, empl_pwd, empl_phone, empl_gender,
+        empl_status, dept_id, operator_id, empl_remark, last_login_time, create_time, update_time, is_deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.emplCode}, #{entity.emplName}, #{entity.emplAccount}, #{entity.emplPwd}, #{entity.emplPhone},
+            #{entity.emplGender}, #{entity.emplStatus}, #{entity.deptId}, #{entity.operatorId}, #{entity.emplRemark},
+            #{entity.lastLoginTime}, #{entity.createTime}, #{entity.updateTime}, #{entity.isDeleted})
+        </foreach>
+        on duplicate key update
+        empl_code = values(empl_code) , empl_name = values(empl_name) , empl_account = values(empl_account) , empl_pwd =
+        values(empl_pwd) , empl_phone = values(empl_phone) , empl_gender = values(empl_gender) , empl_status =
+        values(empl_status) , dept_id = values(dept_id) , operator_id = values(operator_id) , empl_remark =
+        values(empl_remark) , last_login_time = values(last_login_time) , create_time = values(create_time) ,
+        update_time = values(update_time) , is_deleted = values(is_deleted)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update gxa_xly_2021.empl
+        <set>
+            <if test="emplCode != null and emplCode != ''">
+                empl_code = #{emplCode},
+            </if>
+            <if test="emplName != null and emplName != ''">
+                empl_name = #{emplName},
+            </if>
+            <if test="emplAccount != null and emplAccount != ''">
+                empl_account = #{emplAccount},
+            </if>
+            <if test="emplPwd != null and emplPwd != ''">
+                empl_pwd = #{emplPwd},
+            </if>
+            <if test="emplPhone != null">
+                empl_phone = #{emplPhone},
+            </if>
+            <if test="emplGender != null">
+                empl_gender = #{emplGender},
+            </if>
+            <if test="emplStatus != null">
+                empl_status = #{emplStatus},
+            </if>
+            <if test="deptId != null">
+                dept_id = #{deptId},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="emplRemark != null and emplRemark != ''">
+                empl_remark = #{emplRemark},
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time = #{lastLoginTime},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+        where empl_id = #{emplId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from gxa_xly_2021.empl where empl_id = #{emplId}
+    </delete>
+
+<!--    批量删除-假删除-->
+    <update id="deleteAllByIds">
+      update empl set is_deleted=1 where empl_id in
+      <foreach collection="ids" open="(" separator="," close=")" item="id">
+          #{id}
+      </foreach>
+    </update>
+
+</mapper>
+
